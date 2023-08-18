@@ -1,0 +1,52 @@
+volumes:
+  prometheus_data: {}
+  grafana_data: {}
+
+services:
+  prometheus:
+    image: prom/prometheus
+    container_name: prometheus
+    restart: always
+    volumes:
+      - ./prometheus:/etc/prometheus/
+      - prometheus_data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yaml'
+      - '--storage.tsdb.retention.time=15d'
+      - '--web.listen-address=127.0.0.1:9090'
+      # - '--storage.tsdb.retention.size=60GB'
+    ports:
+      - "9090:9090"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    network_mode: "host"
+
+  grafana:
+    image: grafana/grafana
+    container_name: grafana-main
+    restart: always
+    volumes:
+      - grafana_data:/var/lib/grafana  
+      - ./grafana/provisioning/datasources:/etc/grafana/provisioning/datasources
+      - ./grafana/provisioning/dashboards:/etc/grafana/provisioning/dashboards
+      - ./grafana/grafana.ini:/etc/grafana/grafana.ini
+    user: '0'
+    ports:
+      - "3000:3000"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    depends_on:
+      - prometheus
+    environment:
+      GF_SERVER_HTTP_ADDR: "127.0.0.1"
+      GF_LOG_FILTERS: rendering:debug
+      GF_SMTP_ENABLED: "true"
+      # define smtp server for mail alerts
+      # GF_SMTP_HOST: "smtp.server.tld:587"
+      # GF_SMTP_USER: "xx@xxxxx.xx"
+      # GF_SMTP_PASSWORD: "xxxxxxxxxx"
+      # GF_SMTP_SKIP_VERIFY: "true"
+      # GF_SMTP_FROM_ADDRESS: "xx@xxxxx.xx"
+      # GF_SMTP_FROM_NAME: "xx@xxxxx.xx"
+    network_mode: "host"
+

@@ -1,0 +1,30 @@
+global:
+  scrape_interval:     15s # Default is every 1 minute.
+  # evaluation_interval: 15s # Evaluate rules every 15 seconds. The default is every 1 minute.
+
+# rule_files:
+# - "first_rules.yml"
+# - "second_rules.yml"
+
+# A scrape configuration containing exactly one endpoint to scrape:
+scrape_configs:
+  - job_name: 'prometheus'
+  # The job name is added as a label `job=<job_name>` to any timeseries scraped from this config.
+  # metrics_path defaults to '/metrics'
+  # scheme defaults to 'http'.
+    static_configs:
+      - targets: ['127.0.0.1:9090']
+
+  - job_name: 'grafana'
+    metrics_path: '/metrics'
+    scrape_interval: 15s
+    static_configs:
+      - targets: ['127.0.0.1:3000']
+
+  # - job_name: 'spring-hello'
+  #   metrics_path: '/actuator/prometheus'
+  #   scrape_interval: 15s
+  #   static_configs:
+  #     - targets: ['host.docker.internal:8090', 'host.docker.internal:8091']
+      
+      
